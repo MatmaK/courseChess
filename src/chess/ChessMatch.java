@@ -70,7 +70,22 @@ public class ChessMatch {
 	public boolean[][] possibleMoves(ChessPosition sourcePosition) {
 		Position position = sourcePosition.toPosition();
 		validateSourcePosition(position);
-		return board.piece(position).possibleMoves();
+		boolean[][] mat = board.piece(position).possibleMoves();
+		for (int i = 0; i < mat.length; i++) {
+			for (int j = 0; j < mat.length; j++) {
+				if (mat[i][j]) {
+					Position p = new Position(i, j);
+					Piece capturedPiece = makeMove(position, p);
+					if (testCheck(currentPlayer)) {
+						undoMove(position, p, capturedPiece);
+						mat[p.getRow()][p.getColumn()] = false;
+					} else {
+						undoMove(position, p, capturedPiece);
+					}
+				}
+			}
+		}
+		return mat;
 	}
 
 	public ChessPiece performChessMove(ChessPosition sourcePosition, ChessPosition targetPosition) {
@@ -86,7 +101,7 @@ public class ChessMatch {
 		}
 
 		ChessPiece movedPiece = (ChessPiece) board.piece(target);
-		
+
 		// #specialmove promotion
 		promoted = null;
 		if (movedPiece instanceof Pawn) {
@@ -96,7 +111,7 @@ public class ChessMatch {
 				promoted = replacePromotedPiece("Q");
 			}
 		}
-		
+
 		check = (testCheck(opponent(currentPlayer))) ? true : false;
 
 		if (testCheckMate(opponent(currentPlayer))) {
@@ -112,7 +127,6 @@ public class ChessMatch {
 		} else {
 			enPassantVulnerable = null;
 		}
-		
 
 		return (ChessPiece) capturedPiece;
 	}
@@ -206,7 +220,7 @@ public class ChessMatch {
 			}
 		}
 	}
-	
+
 	public ChessPiece replacePromotedPiece(String type) {
 		if (promoted == null) {
 			throw new IllegalStateException("There is no piece to be promoted");
@@ -225,11 +239,14 @@ public class ChessMatch {
 
 		return newPiece;
 	}
-	
+
 	private ChessPiece newPiece(String type, Color color) {
-		if (type.equals("B")) return new Bishop(board, color);
-		if (type.equals("N")) return new Knight(board, color);
-		if (type.equals("Q")) return new Queen(board, color);
+		if (type.equals("B"))
+			return new Bishop(board, color);
+		if (type.equals("N"))
+			return new Knight(board, color);
+		if (type.equals("Q"))
+			return new Queen(board, color);
 		return new Rook(board, color);
 	}
 
@@ -349,5 +366,6 @@ public class ChessMatch {
 		placeNewPiece('f', 7, new Pawn(board, Color.BLACK, this));
 		placeNewPiece('g', 7, new Pawn(board, Color.BLACK, this));
 		placeNewPiece('h', 7, new Pawn(board, Color.BLACK, this));
+		
 	}
 }
