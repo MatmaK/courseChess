@@ -25,6 +25,8 @@ public class ChessMatch {
 	private boolean checkMate;
 	private ChessPiece enPassantVulnerable;
 	private ChessPiece promoted;
+	private boolean staleMate;
+	private boolean insufficientMaterial;
 
 	public ChessMatch() {
 		board = new Board(8, 8);
@@ -57,6 +59,14 @@ public class ChessMatch {
 		return promoted;
 	}
 
+	public boolean getStaleMate() {
+		return staleMate;
+	}
+
+	public boolean getInsufficientMaterial() {
+		return insufficientMaterial;
+	}
+
 	public ChessPiece[][] getPieces() {
 		ChessPiece[][] mat = new ChessPiece[board.getRows()][board.getColumns()];
 		for (int i = 0; i < board.getRows(); i++) {
@@ -67,9 +77,9 @@ public class ChessMatch {
 		return mat;
 	}
 
-	public boolean[][] possibleMoves(ChessPosition sourcePosition) {
+	public boolean[][] possibleMoves(ChessPosition sourcePosition, boolean validateSource) {
 		Position position = sourcePosition.toPosition();
-		validateSourcePosition(position);
+		if (validateSource) {validateSourcePosition(position);}
 		boolean[][] mat = board.piece(position).possibleMoves();
 		for (int i = 0; i < mat.length; i++) {
 			for (int j = 0; j < mat.length; j++) {
@@ -112,6 +122,8 @@ public class ChessMatch {
 			}
 		}
 
+		insufficientMaterial = (piecesOnTheBoard.size() == 2) ? true : false;
+
 		check = (testCheck(opponent(currentPlayer))) ? true : false;
 
 		if (testCheckMate(opponent(currentPlayer))) {
@@ -119,6 +131,8 @@ public class ChessMatch {
 		} else {
 			nextTurn();
 		}
+
+		staleMate = (testStaleMate(currentPlayer)) ? true : false;
 
 		// #specialmove en passant
 		if (movedPiece instanceof Pawn
@@ -332,6 +346,27 @@ public class ChessMatch {
 		return true;
 	}
 
+	public boolean testStaleMate(Color color) {
+		boolean stale = false;
+
+		List<Piece> list = piecesOnTheBoard.stream().filter(x -> ((ChessPiece) x).getColor() == color)
+				.collect(Collectors.toList());
+		for (Piece p : list) {
+			ChessPiece piece = (ChessPiece) p;
+			boolean[][] mat = possibleMoves(piece.getChessPosition(), false);
+			for (int i = 0; i < board.getRows(); i++) {
+				for (int j = 0; j < board.getColumns(); j++) {
+					if (!mat[i][j]) {
+						stale = true;
+					} else {
+						return false;
+					}
+				}
+			}
+		}
+		return stale;
+	}
+
 	private void initialSetup() {
 		placeNewPiece('a', 1, new Rook(board, Color.WHITE));
 		placeNewPiece('b', 1, new Knight(board, Color.WHITE));
@@ -366,6 +401,5 @@ public class ChessMatch {
 		placeNewPiece('f', 7, new Pawn(board, Color.BLACK, this));
 		placeNewPiece('g', 7, new Pawn(board, Color.BLACK, this));
 		placeNewPiece('h', 7, new Pawn(board, Color.BLACK, this));
-		
 	}
 }
