@@ -27,6 +27,8 @@ public class ChessMatch {
 	private ChessPiece promoted;
 	private boolean staleMate;
 	private boolean insufficientMaterial;
+	private boolean fiftyMovesDraw;
+	private int turnsWithoutPawnMoves = 0;
 
 	public ChessMatch() {
 		board = new Board(8, 8);
@@ -65,6 +67,14 @@ public class ChessMatch {
 
 	public boolean getInsufficientMaterial() {
 		return insufficientMaterial;
+	}
+	
+	public boolean getFiftyMovesDraw() {
+		return fiftyMovesDraw;
+	}
+	
+	public int getTurnsWithoutPawnMoves() {
+		return turnsWithoutPawnMoves;
 	}
 
 	public ChessPiece[][] getPieces() {
@@ -121,6 +131,10 @@ public class ChessMatch {
 				promoted = replacePromotedPiece("Q");
 			}
 		}
+		
+		pawnMove((ChessPiece) movedPiece, (ChessPiece) capturedPiece);
+		
+		fiftyMovesDraw = (turnsWithoutPawnMoves == 50) ? true : false;
 
 		insufficientMaterial = (piecesOnTheBoard.size() == 2) ? true : false;
 
@@ -128,7 +142,7 @@ public class ChessMatch {
 
 		if (testCheckMate(opponent(currentPlayer))) {
 			checkMate = true;
-		} else {
+		} else if (!fiftyMovesDraw && !insufficientMaterial) {
 			nextTurn();
 		}
 
@@ -232,6 +246,14 @@ public class ChessMatch {
 				}
 				board.placePiece(pawn, pawnPosition);
 			}
+		}
+	}
+	
+	private void pawnMove(ChessPiece piece, ChessPiece capturedPiece) {
+		if (!(piece instanceof Pawn) && capturedPiece == null) {
+			turnsWithoutPawnMoves++;
+		} else {
+			turnsWithoutPawnMoves = 0;
 		}
 	}
 

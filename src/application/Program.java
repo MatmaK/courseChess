@@ -17,7 +17,7 @@ public class Program {
 		ChessMatch chessMatch = new ChessMatch();
 		List<ChessPiece> captured = new ArrayList<>();
 
-		while (!chessMatch.getCheckMate() && !chessMatch.getStaleMate() && !chessMatch.getInsufficientMaterial()) {
+		while (!chessMatch.getCheckMate() && !chessMatch.getStaleMate() && !chessMatch.getInsufficientMaterial() && !chessMatch.getFiftyMovesDraw()) {
 
 			try {
 				UI.clearScreen();

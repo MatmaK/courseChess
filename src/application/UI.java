@@ -56,7 +56,7 @@ public class UI {
 		System.out.println();
 		printCapturedPieces(captured);
 		System.out.println("\nTurn: " + chessMatch.getTurn());
-		if (!chessMatch.getCheckMate() && !chessMatch.getInsufficientMaterial() && !chessMatch.getStaleMate()) {
+		if (!chessMatch.getCheckMate() && !chessMatch.getInsufficientMaterial() && !chessMatch.getStaleMate() && !chessMatch.getFiftyMovesDraw()) {
 			if (chessMatch.getCurrentPlayer() == Color.BLACK) {
 				System.out.println("Waiting player: " + ANSI_YELLOW + chessMatch.getCurrentPlayer());
 				System.out.print(ANSI_RESET);
@@ -70,6 +70,8 @@ public class UI {
 			System.out.println("INSUFFICIENT MATERIAL DRAW");
 		} else if (chessMatch.getStaleMate()) {
 			System.out.println("STALEMATE DRAW");
+		} else if (chessMatch.getFiftyMovesDraw()){
+			System.out.println("FIFTY MOVES DRAW");
 		} else {
 			System.out.println("CHECKMATE!");
 			System.out.println("Winner: " + chessMatch.getCurrentPlayer());
